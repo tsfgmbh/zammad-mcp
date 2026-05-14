@@ -14,7 +14,7 @@ from typing import Any, NoReturn, Protocol, TypeVar
 import requests  # type: ignore[import-untyped]
 from dotenv import load_dotenv
 from fastmcp import FastMCP
-from fastmcp.server.auth.providers.jwt import JWTVerifier
+from fastmcp.server.auth.oidc_proxy import OIDCProxy
 from mcp.types import ToolAnnotations
 from pydantic import ValidationError
 from starlette.requests import Request
@@ -805,27 +805,27 @@ class ZammadMCPServer:
         extra_kwargs: dict[str, Any] = {}
         if auth is not None:
             extra_kwargs["auth"] = auth
-            base_url = os.getenv("MCP_BASE_URL", "").rstrip("/")
-            if base_url:
-                extra_kwargs["resource_server_url"] = base_url + "/mcp/"
         self.mcp = FastMCP("zammad_mcp", lifespan=self._create_lifespan(), **extra_kwargs)
         self._setup_tools()
         self._setup_resources()
         self._setup_prompts()
 
     @staticmethod
-    def _build_auth() -> JWTVerifier | None:
-        """Build a JWTVerifier from environment variables, or return None."""
+    def _build_auth() -> OIDCProxy | None:
+        """Build an OIDCProxy from environment variables, or return None."""
         issuer = os.getenv("OAUTH_ISSUER")
-        audience = os.getenv("OAUTH_AUDIENCE")
-        if not issuer or not audience:
+        client_id = os.getenv("OAUTH_CLIENT_ID")
+        client_secret = os.getenv("OAUTH_CLIENT_SECRET")
+        base_url = os.getenv("MCP_BASE_URL")
+        if not issuer or not client_id or not client_secret or not base_url:
             return None
-        jwks_uri = issuer.rstrip("/") + "/.well-known/jwks.json"
-        logger.info("OAuth enabled – issuer=%s, audience=%s", issuer, audience)
-        return JWTVerifier(
-            jwks_uri=jwks_uri,
-            issuer=issuer,
-            audience=audience,
+        config_url = issuer.rstrip("/") + "/.well-known/openid-configuration"
+        logger.info("OAuth enabled (OIDCProxy) – issuer=%s, client_id=%s", issuer, client_id)
+        return OIDCProxy(
+            config_url=config_url,
+            client_id=client_id,
+            client_secret=client_secret,
+            base_url=base_url,
         )
 
     def _create_lifespan(self) -> Any:
