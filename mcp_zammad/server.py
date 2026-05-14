@@ -14,6 +14,7 @@ from typing import Any, NoReturn, Protocol, TypeVar
 import requests  # type: ignore[import-untyped]
 from dotenv import load_dotenv
 from fastmcp import FastMCP
+from fastmcp.server.auth import BearerAuthProvider
 from mcp.types import ToolAnnotations
 from pydantic import ValidationError
 from starlette.requests import Request
@@ -799,11 +800,33 @@ class ZammadMCPServer:
         if host is not None or port is not None:
             logger.warning("ZammadMCPServer(host=..., port=...) is deprecated; pass host/port to mcp.run(...) instead.")
         self.client: ZammadClient | None = None
-        # Create FastMCP with lifespan configured
-        self.mcp = FastMCP("zammad_mcp", lifespan=self._create_lifespan())
+        # Create FastMCP with lifespan configured and optional OAuth auth
+        auth = self._build_auth()
+        extra_kwargs: dict[str, Any] = {}
+        if auth is not None:
+            extra_kwargs["auth"] = auth
+            base_url = os.getenv("MCP_BASE_URL", "").rstrip("/")
+            if base_url:
+                extra_kwargs["resource_server_url"] = base_url + "/mcp/"
+        self.mcp = FastMCP("zammad_mcp", lifespan=self._create_lifespan(), **extra_kwargs)
         self._setup_tools()
         self._setup_resources()
         self._setup_prompts()
+
+    @staticmethod
+    def _build_auth() -> BearerAuthProvider | None:
+        """Build a BearerAuthProvider from environment variables, or return None."""
+        issuer = os.getenv("OAUTH_ISSUER")
+        audience = os.getenv("OAUTH_AUDIENCE")
+        if not issuer or not audience:
+            return None
+        jwks_uri = issuer.rstrip("/") + "/.well-known/jwks.json"
+        logger.info("OAuth enabled – issuer=%s, audience=%s", issuer, audience)
+        return BearerAuthProvider(
+            jwks_uri=jwks_uri,
+            issuer=issuer,
+            audience=audience,
+        )
 
     def _create_lifespan(self) -> Any:
         """Create the lifespan context manager for the server."""
