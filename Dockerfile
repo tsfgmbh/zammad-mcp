@@ -47,7 +47,9 @@ ENV PATH="/app/.venv/bin:${PATH}"
 COPY --from=builder /app/mcp_zammad /app/mcp_zammad
 
 # Change ownership to non-root user
-RUN chown -R appuser:appuser /app
+RUN chown -R appuser:appuser /app \
+    && mkdir -p /home/appuser/.local/share/fastmcp \
+    && chown -R appuser:appuser /home/appuser/.local
 USER appuser
 
 # Add labels for GitHub Container Registry
