@@ -14,7 +14,7 @@ from typing import Any, NoReturn, Protocol, TypeVar
 import requests  # type: ignore[import-untyped]
 from dotenv import load_dotenv
 from fastmcp import FastMCP
-from fastmcp.server.auth import BearerAuthProvider
+from fastmcp.server.auth.providers.jwt import JWTVerifier
 from mcp.types import ToolAnnotations
 from pydantic import ValidationError
 from starlette.requests import Request
@@ -814,15 +814,15 @@ class ZammadMCPServer:
         self._setup_prompts()
 
     @staticmethod
-    def _build_auth() -> BearerAuthProvider | None:
-        """Build a BearerAuthProvider from environment variables, or return None."""
+    def _build_auth() -> JWTVerifier | None:
+        """Build a JWTVerifier from environment variables, or return None."""
         issuer = os.getenv("OAUTH_ISSUER")
         audience = os.getenv("OAUTH_AUDIENCE")
         if not issuer or not audience:
             return None
         jwks_uri = issuer.rstrip("/") + "/.well-known/jwks.json"
         logger.info("OAuth enabled – issuer=%s, audience=%s", issuer, audience)
-        return BearerAuthProvider(
+        return JWTVerifier(
             jwks_uri=jwks_uri,
             issuer=issuer,
             audience=audience,
