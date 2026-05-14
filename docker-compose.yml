@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - .env
     environment:
       ZAMMAD_URL: ${ZAMMAD_URL:?ZAMMAD_URL is required}
       ZAMMAD_HTTP_TOKEN: ${ZAMMAD_HTTP_TOKEN:?ZAMMAD_HTTP_TOKEN is required}

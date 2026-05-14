@@ -77,7 +77,28 @@ ZAMMAD_HTTP_TOKEN=your-api-token \
 uvx --from git+https://github.com/tsfgmbh/zammad-mcp.git mcp-zammad
 ```
 
-### Option 2: Docker Run
+### Option 2: Docker Compose (Recommended)
+
+1. Copy and edit the environment file:
+
+```bash
+git clone https://github.com/tsfgmbh/zammad-mcp.git
+cd zammad-mcp
+cp .env.example .env
+# Edit .env with your Zammad credentials (and optionally OAuth settings)
+```
+
+2. Start the server:
+
+```bash
+docker compose up -d --build
+```
+
+The MCP endpoint is available at `http://localhost:9146/mcp/`.
+
+To stop: `docker compose down`
+
+### Option 3: Docker Run
 
 Build and run the Docker image locally:
 
