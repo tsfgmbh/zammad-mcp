@@ -821,11 +821,16 @@ class ZammadMCPServer:
             return None
         config_url = issuer.rstrip("/") + "/.well-known/openid-configuration"
         logger.info("OAuth enabled (OIDCProxy) – issuer=%s, client_id=%s", issuer, client_id)
+        extra_kwargs: dict[str, Any] = {}
+        jwt_key = os.getenv("JWT_SIGNING_KEY")
+        if jwt_key:
+            extra_kwargs["jwt_signing_key"] = jwt_key
         return OIDCProxy(
             config_url=config_url,
             client_id=client_id,
             client_secret=client_secret,
             base_url=base_url,
+            **extra_kwargs,
         )
 
     def _create_lifespan(self) -> Any:
