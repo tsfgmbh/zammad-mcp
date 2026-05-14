@@ -1,7 +1,7 @@
 # Zammad MCP Server
 
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/basher83/Zammad-MCP?utm_source=oss&utm_medium=github&utm_campaign=basher83%2FZammad-MCP&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9cc0ebac926a4d56b0bdf2271d46bbf7)](https://app.codacy.com/gh/basher83/Zammad-MCP/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/tsfgmbh/zammad-mcp?utm_source=oss&utm_medium=github&utm_campaign=basher83%2FZammad-MCP&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9cc0ebac926a4d56b0bdf2271d46bbf7)](https://app.codacy.com/gh/tsfgmbh/zammad-mcp/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 ![Coverage](https://img.shields.io/badge/coverage-90.08%25-brightgreen)
 
 An MCP server that connects AI assistants to Zammad, providing tools for managing tickets, users, organizations, and attachments.
@@ -69,57 +69,38 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 # Run directly from GitHub
-uvx --from git+https://github.com/basher83/zammad-mcp.git mcp-zammad
+uvx --from git+https://github.com/tsfgmbh/zammad-mcp.git mcp-zammad
 
 # Or with environment variables
 ZAMMAD_URL=https://your-instance.zammad.com/api/v1 \
 ZAMMAD_HTTP_TOKEN=your-api-token \
-uvx --from git+https://github.com/basher83/zammad-mcp.git mcp-zammad
+uvx --from git+https://github.com/tsfgmbh/zammad-mcp.git mcp-zammad
 ```
 
 ### Option 2: Docker Run
 
-For production or containerized deployments:
+Build and run the Docker image locally:
 
 ```bash
+# Build the image
+git clone https://github.com/tsfgmbh/zammad-mcp.git
+cd zammad-mcp
+docker build -t zammad-mcp .
+
 # Basic usage with environment variables
 docker run --rm -i \
   -e ZAMMAD_URL=https://your-instance.zammad.com/api/v1 \
   -e ZAMMAD_HTTP_TOKEN=your-api-token \
-  ghcr.io/basher83/zammad-mcp:latest
+  zammad-mcp
 
 # If you must skip TLS verification (self-signed / internal CA), add:
 #   -e ZAMMAD_INSECURE=true
 
-# Using Docker secrets for better security
-docker run --rm -i \
-  -e ZAMMAD_URL=https://your-instance.zammad.com/api/v1 \
-  -e ZAMMAD_HTTP_TOKEN_FILE=/run/secrets/token \
-  -v ./secrets/zammad_http_token.txt:/run/secrets/token:ro \
-  ghcr.io/basher83/zammad-mcp:latest
-
 # With .env file
 docker run --rm -i \
   --env-file .env \
-  ghcr.io/basher83/zammad-mcp:latest
+  zammad-mcp
 ```
-
-#### Docker Image Versioning
-
-The project publishes Docker images with semantic versioning:
-
-- `latest` - Most recent stable release
-- `1.2.3` - Specific version (recommended for production)
-- `1.2` - Latest patch of 1.2 minor release
-- `1` - Latest minor/patch of 1.x major release
-- `main` - Latest main branch (may be unstable)
-
-```bash
-# Recommended for production - pin to specific version
-docker pull ghcr.io/basher83/zammad-mcp:1.0.0
-```
-
-View all versions on [GitHub Container Registry](https://github.com/basher83/Zammad-MCP/pkgs/container/zammad-mcp).
 
 ### Option 3: For Developers
 
@@ -127,7 +108,7 @@ To contribute or modify the code:
 
 ```bash
 # Clone the repository
-git clone https://github.com/basher83/zammad-mcp.git
+git clone https://github.com/tsfgmbh/zammad-mcp.git
 cd zammad-mcp
 
 # Run the setup script
@@ -221,7 +202,7 @@ Add to your Claude Desktop configuration:
   "mcpServers": {
     "zammad": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/basher83/zammad-mcp.git", "mcp-zammad"],
+      "args": ["--from", "git+https://github.com/tsfgmbh/zammad-mcp.git", "mcp-zammad"],
       "env": {
         "ZAMMAD_URL": "https://your-instance.zammad.com/api/v1",
         "ZAMMAD_HTTP_TOKEN": "your-api-token"
@@ -231,7 +212,7 @@ Add to your Claude Desktop configuration:
 }
 ```
 
-Or using Docker:
+Or using Docker (after building locally with `docker build -t zammad-mcp .`):
 
 ```json
 {
@@ -241,7 +222,7 @@ Or using Docker:
       "args": ["run", "--rm", "-i", 
                "-e", "ZAMMAD_URL=https://your-instance.zammad.com/api/v1",
                "-e", "ZAMMAD_HTTP_TOKEN=your-api-token",
-               "ghcr.io/basher83/zammad-mcp:latest"]
+               "zammad-mcp"]
     }
   }
 }
@@ -302,7 +283,7 @@ MCP_HOST=127.0.0.1 \
 MCP_PORT=8000 \
 ZAMMAD_URL=https://your-instance.zammad.com/api/v1 \
 ZAMMAD_HTTP_TOKEN=your-api-token \
-uvx --from git+https://github.com/basher83/zammad-mcp.git mcp-zammad
+uvx --from git+https://github.com/tsfgmbh/zammad-mcp.git mcp-zammad
 ```
 
 **Docker:**
@@ -316,7 +297,7 @@ docker run -d \
   -e MCP_PORT=8000 \
   -e ZAMMAD_URL=https://your-instance.zammad.com/api/v1 \
   -e ZAMMAD_HTTP_TOKEN=your-api-token \
-  ghcr.io/basher83/zammad-mcp:latest
+  zammad-mcp
 ```
 
 Access the MCP endpoint at `http://localhost:8000/mcp/`.
@@ -336,7 +317,7 @@ MCP_HOST=0.0.0.0 \
 MCP_PORT=8000 \
 ZAMMAD_URL=https://your-instance.zammad.com/api/v1 \
 ZAMMAD_HTTP_TOKEN=your-api-token \
-uvx --from git+https://github.com/basher83/zammad-mcp.git mcp-zammad
+uvx --from git+https://github.com/tsfgmbh/zammad-mcp.git mcp-zammad
 ```
 
 **Caddyfile configuration:**
@@ -441,7 +422,7 @@ Use delete_attachment with:
 
 ```bash
 # Clone the repository
-git clone https://github.com/basher83/zammad-mcp.git
+git clone https://github.com/tsfgmbh/zammad-mcp.git
 cd zammad-mcp
 
 # Run the setup script
@@ -456,7 +437,7 @@ cd zammad-mcp
 
 ```bash
 # Clone the repository
-git clone https://github.com/basher83/zammad-mcp.git
+git clone https://github.com/tsfgmbh/zammad-mcp.git
 cd zammad-mcp
 
 # Create a virtual environment with uv
@@ -563,7 +544,7 @@ The server implements multiple layers of protection following industry best prac
 
 **⚠️ IMPORTANT**: Do not create public GitHub issues for security vulnerabilities.
 
-Report via [GitHub Security Advisories](https://github.com/basher83/Zammad-MCP/security/advisories/new) (preferred) or see [SECURITY.md](SECURITY.md).
+Report via [GitHub Security Advisories](https://github.com/tsfgmbh/zammad-mcp/security/advisories/new) (preferred) or see [SECURITY.md](SECURITY.md).
 
 ### Security Features
 
@@ -593,7 +574,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code standards, te
 
 ## Support
 
-- [GitHub Issues](https://github.com/basher83/Zammad-MCP/issues)
+- [GitHub Issues](https://github.com/tsfgmbh/zammad-mcp/issues)
 - [Zammad Documentation](https://docs.zammad.org/)
 - [MCP Documentation](https://modelcontextprotocol.io/)
 
